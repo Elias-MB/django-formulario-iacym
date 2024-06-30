@@ -31,7 +31,7 @@ SECRET_KEY = 'django-insecure-ti(eaf%$%6nxjd@7eu2r&l%*s-y=q7sbs2i_^puy$-t!=_76u%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.11', 'localhost', '127.0.0.1'] 
+ALLOWED_HOSTS = ['django-formulario-iacym-production.up.railway.app', '192.168.1.11',  'localhost', '127.0.0.1'] 
 
 
 # Application definition
