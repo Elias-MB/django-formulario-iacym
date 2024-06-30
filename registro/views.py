@@ -6,8 +6,10 @@ from rest_framework.response import Response
 from rest_framework import viewsets, status
 from .serializer import *
 from .models import *
+import threading
 from rest_framework.views import APIView
 import base64
+from .middlewares.email import Email
 from django.core.files.base import ContentFile
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
@@ -97,7 +99,6 @@ class VistaCursoPersona(viewsets.ModelViewSet):
                     print("Curso con este ID no existe.")
                     return Response({"detail": "Curso con este ID no existe."}, status=status.HTTP_400_BAD_REQUEST)
                 
-            
             if data_persona:
                 fecha_nacimiento = data_persona.get('fecha_nacimiento')
                 if fecha_nacimiento:
@@ -193,7 +194,67 @@ class VistaCursoPersona(viewsets.ModelViewSet):
                         estado="A",
                         tamanio=file_size_kb
                     )
-            
+                    
+                html=f"""
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="padding: 0; margin: 0; font-family: Roboto, sans-serif;">
+    <div style="width: 100%; padding: 30px; background-color: #004c76; color: #fff; text-align: center; font-size: 24px;">
+        SISTEMA DE REGISTRO IACYM MANCHAY
+    </div>
+    <div style="padding: 30px;">
+        <h3 style="font-weight: bold; text-align: center; font-size: 20px;">
+            Se ha detectado un nuevo registro en la academia biblica
+        </h3>
+        <table style="padding-top: 30px; width: 100%; max-width: 800px; margin: 0 auto 0 auto; border-collapse: collapse; text-align: left; border-radius: 5px;">
+            <tr>
+                <th style="border: 1px solid #ddd; border-radius: 5px; padding: 8px; background-color: #f2f2f2; font-weight: bold;">Campo</th>
+                <th style="border: 1px solid #ddd; border-radius: 5px; padding: 8px; background-color: #f2f2f2; font-weight: bold;">Valor</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">Curso</td>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">{curso_instance.nombre}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">Alumno</td>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">{persona_creada.nombre_completo}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">Celular</td>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">{persona_creada.celular}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">Email</td>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">{persona_creada.email}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">Docmuento</td>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">{tipo_documento_instance.nombre} {persona_creada.documento}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">Edad</td>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">{persona_creada.edad}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">Ministerio</td>
+                <td style="border: 1px solid #ddd; border-radius: 5px; padding: 8px;">{ministerio_instance.nombre}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
+"""
+                print("Se enviara un correo")
+                def enviar_correo_asincrono():
+                    email = Email()
+                    email.enviar_html(html=html)
+                
+                thread = threading.Thread(target=enviar_correo_asincrono)
+                thread.start()
+                print("Correo enviado en segundo plano.")
             try:
                 dataPost = {
                     "curso": curso_instance,
