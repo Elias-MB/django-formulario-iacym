@@ -128,7 +128,7 @@ class VistaCursoPersona(viewsets.ModelViewSet):
                         return Response({"detail": "Ministerio con este ID no existe."}, status=status.HTTP_400_BAD_REQUEST)
                     data_persona['ministerio'] = ministerio_instance
                     
-                PERSONA_FOLDER = f'{data_persona.get('nombres')}_{data_persona.get('apellido_paterno')}_{data_persona.get('apellido_materno')}_{data_persona.get('documento')}'
+                PERSONA_FOLDER = f"{data_persona.get('nombres')}_{data_persona.get('apellido_paterno')}_{data_persona.get('apellido_materno')}_{data_persona.get('documento')}"
                 persona_dir = os.path.join(settings.BASE_DIR, "archivos", PERSONA_FOLDER)
                 data_persona["ruta_carpeta"]  = persona_dir
                 

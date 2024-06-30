@@ -1,1 +1,1 @@
-web: gunicorn formulario.wsgi
+web: python manage.py collectstatic && gunicorn formulario.wsgi
