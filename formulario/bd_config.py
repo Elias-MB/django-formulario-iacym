@@ -19,3 +19,14 @@ BD_SQLITE3 = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+BD_POSTGRES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'sistema_formulario',
+        'USER': 'postgres',
+        'PASSWORD': '123',
+        'HOST': 'localhost',
+        'PORT': 5432,
+    }
+}
