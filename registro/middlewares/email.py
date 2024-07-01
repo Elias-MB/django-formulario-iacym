@@ -23,7 +23,7 @@ class Email:
         finally:
             self.cerrar_conexion()
             
-    def enviar_html(self, asunto="ROBOT DEVELOPER", html="<h2>Este mensaje es un correo de prueba. Si lo recibió ignórelo por favor.</h2>", archivo_adjunto=None):
+    def enviar_html(self, datos, asunto="ROBOT DEVELOPER", html="<h2>Este mensaje es un correo de prueba. Si lo recibió ignórelo por favor.</h2>", archivo_adjunto=None):
         try:
             if archivo_adjunto:                
                 format, imgstr = archivo_adjunto.split(';base64,')
@@ -37,7 +37,7 @@ class Email:
                 ruta_archivo_temporal = os.path.join(RUTA_CARPETA_TEMP, nombre_archivo_completo)
                 with open(ruta_archivo_temporal, 'wb') as f:
                     f.write(datos_archivo.read())
-
+                # self.to_emails.append(datos["email"])
                 self.yag.send(self.to_emails, asunto, html, attachments=ruta_archivo_temporal)
                 print("Correo con adjunto enviado correctamente.")
 

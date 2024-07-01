@@ -86,7 +86,7 @@ class VistaCursoPersona(viewsets.ModelViewSet):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         try:
-            print(request.data)
+            # print(request.data)
             datos = request.data.copy()
             data_persona = datos.get('persona')
             data_curso = datos.get('curso')
@@ -247,11 +247,15 @@ class VistaCursoPersona(viewsets.ModelViewSet):
     </div>
 </body>
 </html>
-"""
+"""             
                 print("Se enviara un correo")
                 def enviar_correo_asincrono():
+                    datos = {
+                        "archivo": persona_creada.documento,
+                        "email": persona_creada.email
+                    }
                     email = Email()
-                    email.enviar_html(html=html, archivo_adjunto=archivo_adjunto)
+                    email.enviar_html(datos, html=html, archivo_adjunto=archivo_adjunto)
                 
                 thread = threading.Thread(target=enviar_correo_asincrono)
                 thread.start()
