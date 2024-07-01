@@ -169,16 +169,17 @@ class VistaCursoPersona(viewsets.ModelViewSet):
                     os.makedirs(persona_dir)
                 
                 archivo_data = datos.get('archivo')
+                archivo_adjunto = None
                 if archivo_data:
-                    voucher = archivo_data
-                    format, imgstr = voucher.split(';base64,') 
+                    archivo_adjunto = archivo_data
+                    format, imgstr = archivo_adjunto.split(';base64,') 
                     ext = format.split('/')[-1] 
-                    nombre_archivo = f"voucher"
+                    nombre_archivo = f"voucher_{data_curso.get('nombre')}"
                     decoded_data = base64.b64decode(imgstr)
                     file_size = len(decoded_data) / 1024
                     file_size_kb = f"{file_size:.2f} KB"
                     data = ContentFile(base64.b64decode(imgstr), name=f"{nombre_archivo}.{ext}")
-                    archivo_path = os.path.join(persona_dir, f"voucher_{data_curso.get('nombre')}.{ext}")
+                    archivo_path = os.path.join(persona_dir, f"{nombre_archivo}.{ext}")
 
                     with open(archivo_path, 'wb') as f:
                         f.write(data.read())
@@ -250,7 +251,7 @@ class VistaCursoPersona(viewsets.ModelViewSet):
                 print("Se enviara un correo")
                 def enviar_correo_asincrono():
                     email = Email()
-                    email.enviar_html(html=html)
+                    email.enviar_html(html=html, archivo_adjunto=archivo_adjunto)
                 
                 thread = threading.Thread(target=enviar_correo_asincrono)
                 thread.start()
