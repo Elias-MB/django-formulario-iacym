@@ -40,10 +40,28 @@ class VistaCurso(viewsets.ModelViewSet):
     serializer_class = CursoSerializer
     queryset = Curso.objects.all()
     
+    def list(self, request, *args, **kwargs):
+        try:
+            cursos = Curso.objects.filter(estado='A')
+            serializer = self.get_serializer(cursos, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
 class VistaMinisterio(viewsets.ModelViewSet):
     serializer_class = MinisterioSerializer
     queryset = Ministerio.objects.all()
     
+    def list(self, request, *args, **kwargs):
+        try:
+            ministerios = Ministerio.objects.filter(estado='A')
+            serializer = self.get_serializer(ministerios, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
 class VistaCursoPersona(viewsets.ModelViewSet):
     queryset = CursoPersona.objects.all()
     
@@ -165,36 +183,36 @@ class VistaCursoPersona(viewsets.ModelViewSet):
                     print(e)
                     return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-                if not os.path.exists(persona_dir):
-                    os.makedirs(persona_dir)
+                # if not os.path.exists(persona_dir):
+                #     os.makedirs(persona_dir)
                 
                 archivo_data = datos.get('archivo')
                 archivo_adjunto = None
                 if archivo_data:
                     archivo_adjunto = archivo_data
-                    format, imgstr = archivo_adjunto.split(';base64,') 
-                    ext = format.split('/')[-1] 
-                    nombre_archivo = f"voucher_{data_curso.get('nombre')}"
-                    decoded_data = base64.b64decode(imgstr)
-                    file_size = len(decoded_data) / 1024
-                    file_size_kb = f"{file_size:.2f} KB"
-                    data = ContentFile(base64.b64decode(imgstr), name=f"{nombre_archivo}.{ext}")
-                    archivo_path = os.path.join(persona_dir, f"{nombre_archivo}.{ext}")
+                    # format, imgstr = archivo_adjunto.split(';base64,') 
+                    # ext = format.split('/')[-1] 
+                    # nombre_archivo = f"voucher_{data_curso.get('nombre')}"
+                    # decoded_data = base64.b64decode(imgstr)
+                    # file_size = len(decoded_data) / 1024
+                    # file_size_kb = f"{file_size:.2f} KB"
+                    # data = ContentFile(base64.b64decode(imgstr), name=f"{nombre_archivo}.{ext}")
+                    # archivo_path = os.path.join(persona_dir, f"{nombre_archivo}.{ext}")
 
-                    with open(archivo_path, 'wb') as f:
-                        f.write(data.read())
+                    # with open(archivo_path, 'wb') as f:
+                    #     f.write(data.read())
                     
-                    archivo = Archivo.objects.create(
-                        modelo="CursoPersona",
-                        id_modelo=persona_creada.id, 
-                        nombre=f"{nombre_archivo}.{ext}",
-                        extension=ext,
-                        tipo="image",
-                        subtipo="voucher",
-                        ruta=archivo_path,
-                        estado="A",
-                        tamanio=file_size_kb
-                    )
+                    # archivo = Archivo.objects.create(
+                    #     modelo="CursoPersona",
+                    #     id_modelo=persona_creada.id, 
+                    #     nombre=f"{nombre_archivo}.{ext}",
+                    #     extension=ext,
+                    #     tipo="image",
+                    #     subtipo="voucher",
+                    #     ruta=archivo_path,
+                    #     estado="A",
+                    #     tamanio=file_size_kb
+                    # )
                     
                 html=f"""
 <html lang="es">
