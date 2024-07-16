@@ -163,3 +163,48 @@ class Archivo(models.Model):
 
     def __str__(self):
         return f"{self.nombre}, {self.ruta}"
+
+class PersonaPareja(models.Model):
+    nombres = models.CharField(max_length=100)
+    apellido_paterno = models.CharField(max_length=50)
+    apellido_materno = models.CharField(max_length=50)
+    nombre_completo = models.CharField(max_length=200, blank=True)
+    fecha_nacimiento = models.DateField(blank=True, null=True)
+    celular = models.CharField(max_length=15)
+    edad = models.IntegerField(blank=True, null=True)
+    estado = models.CharField(max_length=8)
+    desc = models.TextField(blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        self.nombre_completo = f"{self.nombres} {self.apellido_paterno} {self.apellido_materno}"
+        if self.fecha_nacimiento:
+            hoy = date.today()
+            self.edad = hoy.year - self.fecha_nacimiento.year - ((hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
+        else:
+            self.edad = None
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.nombre_completo}"
+    
+    class Meta:
+        db_table = 'tmpar10'
+        managed = True
+        verbose_name = "PersonaPareja"
+        verbose_name_plural = "PersonaParejas"
+
+
+class Pareja(models.Model):
+    idoneo = models.ForeignKey(PersonaPareja, on_delete=models.CASCADE, related_name='parejas_idoneo', null=True)
+    idonea = models.ForeignKey(PersonaPareja, on_delete=models.CASCADE, related_name='parejas_idonea', null=True)
+    estado = models.CharField(max_length=8)
+    desc = models.TextField(blank=True, null=True)
+        
+    def __str__(self):
+        return f"{self.idoneo} y {self.idonea}"
+    
+    class Meta:
+        db_table = 'tmpar20'
+        managed = True
+        verbose_name = "Pareja"
+        verbose_name_plural = "Parejas"

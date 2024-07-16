@@ -18,6 +18,11 @@ class MinisterioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ministerio
         fields = '__all__'
+        
+class PersonaParejaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonaPareja
+        fields = '__all__'
 
 """ ====== ====== ====== ====== PRINCIPALES ====== ====== ====== ====== """
 class PersonaWriteSerializer(serializers.ModelSerializer):
@@ -67,6 +72,19 @@ class CursoPersonaReadSerializer(serializers.ModelSerializer):
         model = CursoPersona
         fields = '__all__'
 
+class ParejaWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pareja
+        fields = '__all__'
+
+class ParejaReadSerializer(serializers.ModelSerializer):
+    idoneo = PersonaParejaSerializer(read_only = True)
+    idonea = PersonaParejaSerializer(read_only = True)
+
+    class Meta:
+        model = Pareja
+        fields = '__all__'
+        
 """ ====== ====== ====== ====== USUARIOS ====== ====== ====== ====== """
 class UsuarioWriteSerializer(serializers.ModelSerializer):
     class Meta:

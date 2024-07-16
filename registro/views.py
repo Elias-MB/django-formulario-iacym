@@ -9,6 +9,7 @@ from .models import *
 import threading
 from rest_framework.views import APIView
 import base64
+import traceback
 from .middlewares.email import Email
 from django.core.files.base import ContentFile
 from django.core.exceptions import ObjectDoesNotExist
@@ -17,7 +18,12 @@ from datetime import datetime
 import os
 
 def formatearFecha(fecha):
-    return (datetime.strptime(fecha, "%Y-%m-%dT%H:%M:%S.%fZ")).date()
+    try:
+        # Intentar formatear como fecha completa
+        return datetime.strptime(fecha, "%Y-%m-%dT%H:%M:%S.%fZ").date()
+    except ValueError:
+        # Si falla, asumir que ya está en formato %Y-%m-%d
+        return datetime.strptime(fecha, "%Y-%m-%d").date()
 
 class Objeto:
     def __init__(self, diccionario):
@@ -301,6 +307,19 @@ class VistaCursoPersona(viewsets.ModelViewSet):
             print(e)
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
+class VistaPersonaPareja(viewsets.ModelViewSet):
+    serializer_class = PersonaParejaSerializer
+    queryset = PersonaPareja.objects.all()
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            personas_pareja = PersonaPareja.objects.filter(estado='A')
+            serializer = self.get_serializer(personas_pareja, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
 # =========================== APIS =======================
 class VerArchivoApi(APIView):
     def post(self, request):
@@ -525,5 +544,72 @@ class RegistroCursoPersonaApi(APIView):
             print(e)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# =========================== PAREJAS =======================
 
-
+class VistaPareja(viewsets.ModelViewSet):
+    queryset = Pareja.objects.all()
+    
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return ParejaWriteSerializer
+        return ParejaReadSerializer
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            parejas = Pareja.objects.filter(estado='A')
+            serializer = self.get_serializer(parejas, many=True)
+            print("serializer.data")
+            print(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        try:
+            idoneo_data = request.data.get('idoneo')
+            idonea_data = request.data.get('idonea')
+            expectativas = request.data.get('expectativas')
+            
+            # Crear PersonaPareja para idoneo
+            fecha_nacimiento_idoneo = idoneo_data.get('fecha_nacimiento')
+            if fecha_nacimiento_idoneo:
+                idoneo_data['fecha_nacimiento'] = formatearFecha(fecha_nacimiento_idoneo)
+            try:
+                idoneo_creado = PersonaPareja.objects.create(**idoneo_data)
+            except Exception as e:
+                error_trace = traceback.format_exc()
+                print(error_trace)
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # Crear PersonaPareja para idonea
+            fecha_nacimiento_idonea = idonea_data.get('fecha_nacimiento')
+            if fecha_nacimiento_idonea:
+                idonea_data['fecha_nacimiento'] = formatearFecha(fecha_nacimiento_idonea)
+            try:
+                idonea_creado = PersonaPareja.objects.create(**idonea_data)
+            except Exception as e:
+                error_trace = traceback.format_exc()
+                print(error_trace)
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Crear Pareja
+            pareja_data = {
+                'idoneo': idoneo_creado,
+                'idonea': idonea_creado,
+                'estado': 'A',  # O el estado que desees establecer por defecto
+                'desc': expectativas
+            }
+            
+            try:
+                pareja_creada = Pareja.objects.create(**pareja_data)
+                pareja_serializer = self.get_serializer(pareja_creada)
+                return Response(pareja_serializer.data, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                error_trace = traceback.format_exc()
+                print(error_trace)
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                
+        except Exception as e:
+            error_trace = traceback.format_exc()
+            print(error_trace)
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
