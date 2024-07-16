@@ -24,6 +24,11 @@ class PersonaParejaSerializer(serializers.ModelSerializer):
         model = PersonaPareja
         fields = '__all__'
 
+class WspSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wsp
+        fields = '__all__'
+
 """ ====== ====== ====== ====== PRINCIPALES ====== ====== ====== ====== """
 class PersonaWriteSerializer(serializers.ModelSerializer):
     ministerio = MinisterioSerializer()

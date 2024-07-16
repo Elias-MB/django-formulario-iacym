@@ -613,3 +613,19 @@ class VistaPareja(viewsets.ModelViewSet):
             error_trace = traceback.format_exc()
             print(error_trace)
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+# =========================== WSP =======================        
+class VistaWsp(viewsets.ModelViewSet):
+    serializer_class = WspSerializer
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            wsps = Wsp.objects.filter(estado='A')
+            serializer = self.get_serializer(wsps, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        

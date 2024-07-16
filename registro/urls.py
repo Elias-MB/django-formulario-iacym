@@ -14,6 +14,7 @@ router.register(r'cursos', VistaCurso, 'cursos')
 router.register(r'ministerios', VistaMinisterio, 'ministerios')
 router.register(r'registros', VistaCursoPersona, 'registros')
 router.register(r'registros-parejas', VistaPareja, 'registros-pareja')
+router.register(r'wsp', VistaWsp, 'registros-wsp')
 
 # router.register(r'permiso', VistaPermisos, 'permisos')
 

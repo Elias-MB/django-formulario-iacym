@@ -193,7 +193,6 @@ class PersonaPareja(models.Model):
         verbose_name = "PersonaPareja"
         verbose_name_plural = "PersonaParejas"
 
-
 class Pareja(models.Model):
     idoneo = models.ForeignKey(PersonaPareja, on_delete=models.CASCADE, related_name='parejas_idoneo', null=True)
     idonea = models.ForeignKey(PersonaPareja, on_delete=models.CASCADE, related_name='parejas_idonea', null=True)
@@ -208,3 +207,20 @@ class Pareja(models.Model):
         managed = True
         verbose_name = "Pareja"
         verbose_name_plural = "Parejas"
+
+class Wsp(models.Model):
+    url = models.CharField(max_length=100)
+    destino = models.CharField(max_length=100)
+    palabra_clave = models.CharField(max_length=50, blank=True, null=True)
+    mensaje = models.TextField(blank=True, null=True)
+    estado = models.CharField(max_length=8)
+        
+    def __str__(self):
+        return f"{self.destino}: {self.url}"
+    
+    class Meta:
+        db_table = 'tbwsp'
+        managed = True
+        verbose_name = "Wsp"
+        verbose_name_plural = "Wsps"
+
